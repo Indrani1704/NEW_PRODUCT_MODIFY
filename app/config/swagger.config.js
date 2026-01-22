@@ -16,29 +16,10 @@ module.exports = {
         description: "Local HTTP server",
       },
       {
-        url: "https://localhost:5000",
-        description: "Local HTTPS server",
-      },
-      {
-        url: "https://your-render-app.onrender.com",
-        description: "Production HTTPS server",
+        url: "https://product-site-api-6u38.onrender.com",
+        description: "Render Production HTTPS server",
       },
     ],
-
-    // tags: [
-    //   {
-    //     name: "restful API",
-    //     description: "CRUD API",
-    //   },
-    //   {
-    //     name: "Auth restful API",
-    //     description: "Auth API",
-    //   },
-    //   {
-    //     name: "Blog API",
-    //     description: "Blog API",
-    //   },
-    // ],
 
     components: {
       securitySchemes: {
@@ -62,6 +43,5 @@ module.exports = {
     "app.js",
     "./app/routes/auth.routes.js",
     "./app/routes/product.routes.js",
-    "./app/routes/*.js",
   ],
 };

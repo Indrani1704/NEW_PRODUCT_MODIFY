@@ -12,12 +12,8 @@ module.exports = {
 
     servers: [
       {
-        url: "http://localhost:5000",
-        description: "Local HTTP server",
-      },
-      {
-        url: "https://product-site-api-6u38.onrender.com",
-        description: "Render Production HTTPS server",
+        url: "/",
+        description: "Current server (auto-detect)",
       },
     ],
 

@@ -41,3 +41,4 @@ module.exports = {
     "./app/routes/product.routes.js",
   ],
 };
+

@@ -1,13 +1,24 @@
 const router = require("express").Router();
-const { login, refresh, register } = require("../controllers/auth.controller");
 const multer = require("multer");
 const upload = multer();
+
+const auth = require("../middlewares/auth.middleware");
+const admin = require("../middlewares/admin.middleware");
+
+const {
+  login,
+  refresh,
+  register,
+  changeRole,
+} = require("../controllers/auth.controller");
+
 /**
  * @swagger
  * tags:
  *   name: Auth
  *   description: Authentication APIs
  */
+
 
 /**
  * @swagger
@@ -21,28 +32,21 @@ const upload = multer();
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - password
- *               - role
+ *             required: [email, password]
  *             properties:
  *               email:
  *                 type: string
- *                 example: admin@example.com
  *               password:
  *                 type: string
- *                 example: 123456
  *               role:
  *                 type: string
  *                 enum: [admin, user]
- *                 example: admin
  *     responses:
  *       201:
- *         description: User registered successfully
- *       400:
- *         description: User already exists
+ *         description: User created
  */
-router.post("/register",upload.none(), register);
+router.post("/register", upload.none(), register);
+
 
 /**
  * @swagger
@@ -56,29 +60,24 @@ router.post("/register",upload.none(), register);
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - password
+ *             required: [email, password]
  *             properties:
  *               email:
  *                 type: string
- *                 example: admin@example.com
  *               password:
  *                 type: string
- *                 example: 123456
  *     responses:
  *       200:
  *         description: Login successful
- *       401:
- *         description: Invalid credentials
  */
-router.post("/login",upload.none(), login);
+router.post("/login", upload.none(), login);
+
 
 /**
  * @swagger
  * /api/auth/refresh:
  *   post:
- *     summary: Refresh access token (Admin only)
+ *     summary: Refresh access token (Admin)
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -86,17 +85,45 @@ router.post("/login",upload.none(), login);
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - refreshToken
+ *             required: [refreshToken]
  *             properties:
  *               refreshToken:
  *                 type: string
  *     responses:
  *       200:
- *         description: New access token generated
- *       403:
- *         description: Invalid refresh token
+ *         description: New access token
  */
-router.post("/refresh",upload.none(), refresh);
+router.post("/refresh", upload.none(), refresh);
+
+
+/**
+ * @swagger
+ * /api/auth/role/{id}:
+ *   patch:
+ *     summary: Change user role (Admin only)
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: [admin, user]
+ *     responses:
+ *       200:
+ *         description: Role updated
+ */
+router.patch("/role/:id", auth, admin, changeRole);
 
 module.exports = router;

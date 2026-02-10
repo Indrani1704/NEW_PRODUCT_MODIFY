@@ -2,13 +2,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user.model");
 
-
 exports.register = async (req, res) => {
   const { email, password, role } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password required" });
-  }
 
   const existingUser = await User.findOne({ email });
   if (existingUser)
@@ -22,16 +17,8 @@ exports.register = async (req, res) => {
     role: role === "admin" ? "admin" : "user",
   });
 
-  res.status(201).json({
-    message: "User registered successfully",
-    user: {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-    },
-  });
+  res.status(201).json({ user });
 };
-
 
 const generateAccessToken = (payload) =>
   jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: "15m" });
@@ -39,12 +26,9 @@ const generateAccessToken = (payload) =>
 const generateRefreshToken = (payload) =>
   jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
 
-
-
-
-
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+
   const user = await User.findOne({ email });
 
   if (!user || !(await bcrypt.compare(password, user.password)))
@@ -82,4 +66,19 @@ exports.refresh = async (req, res) => {
 
     res.json({ accessToken });
   });
+};
+
+
+
+// ⭐ ADMIN ROLE CHANGE
+exports.changeRole = async (req, res) => {
+  const { role } = req.body;
+
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { role },
+    { new: true }
+  );
+
+  res.json({ message: "Role updated", user });
 };

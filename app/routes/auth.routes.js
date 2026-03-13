@@ -1,30 +1,12 @@
-const router = require("express").Router();
-const multer = require("multer");
-const upload = multer();
-
-const auth = require("../middlewares/auth.middleware");
-const admin = require("../middlewares/admin.middleware");
-
-const {
-  login,
-  refresh,
-  register,
-  changeRole,
-} = require("../controllers/auth.controller");
-
-/**
- * @swagger
- * tags:
- *   name: Auth
- *   description: Authentication APIs
- */
-
+const express = require("express");
+const router = express.Router();
+const authController = require("../controllers/auth.controller");
 
 /**
  * @swagger
  * /api/auth/register:
  *   post:
- *     summary: Register user or admin
+ *     summary: Register a new user
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -32,20 +14,24 @@ const {
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required: [email, password]
+ *             required:
+ *               - email
+ *               - password
  *             properties:
  *               email:
  *                 type: string
+ *                 example: user@gmail.com
  *               password:
  *                 type: string
+ *                 example: 123456
  *               role:
  *                 type: string
- *                 enum: [admin, user]
+ *                 example: user
  *     responses:
  *       201:
- *         description: User created
+ *         description: User registered successfully
  */
-router.post("/register", upload.none(), register);
+router.post("/register", authController.register);
 
 
 /**
@@ -60,24 +46,28 @@ router.post("/register", upload.none(), register);
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required: [email, password]
+ *             required:
+ *               - email
+ *               - password
  *             properties:
  *               email:
  *                 type: string
+ *                 example: admin@gmail.com
  *               password:
  *                 type: string
+ *                 example: 123456
  *     responses:
  *       200:
  *         description: Login successful
  */
-router.post("/login", upload.none(), login);
+router.post("/login", authController.login);
 
 
 /**
  * @swagger
  * /api/auth/refresh:
  *   post:
- *     summary: Refresh access token (Admin)
+ *     summary: Generate new access token using refresh token
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -85,45 +75,48 @@ router.post("/login", upload.none(), login);
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required: [refreshToken]
+ *             required:
+ *               - refreshToken
  *             properties:
  *               refreshToken:
  *                 type: string
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
  *     responses:
  *       200:
- *         description: New access token
+ *         description: New access token generated
  */
-router.post("/refresh", upload.none(), refresh);
+router.post("/refresh", authController.refresh);
 
 
 /**
  * @swagger
- * /api/auth/role/{id}:
+ * /api/auth/change-role/{id}:
  *   patch:
- *     summary: Change user role (Admin only)
+ *     summary: Change user role
  *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
+ *         description: User ID
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required:
+ *               - role
  *             properties:
  *               role:
  *                 type: string
- *                 enum: [admin, user]
+ *                 example: admin
  *     responses:
  *       200:
- *         description: Role updated
+ *         description: Role updated successfully
  */
-router.patch("/role/:id", auth, admin, changeRole);
+router.patch("/change-role/:id", authController.changeRole);
 
 module.exports = router;

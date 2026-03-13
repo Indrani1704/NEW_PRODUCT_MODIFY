@@ -1,5 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+
+const upload = multer(); // middleware to parse multipart/form-data
+
 const authController = require("../controllers/auth.controller");
 
 /**
@@ -30,31 +34,8 @@ const authController = require("../controllers/auth.controller");
  *     responses:
  *       201:
  *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: number
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     user:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: string
- *                         email:
- *                           type: string
- *                         role:
- *                           type: string
  */
-router.post("/register", authController.register);
+router.post("/register", upload.none(), authController.register);
 
 
 /**
@@ -82,37 +63,8 @@ router.post("/register", authController.register);
  *     responses:
  *       200:
  *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: number
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     user:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: string
- *                         email:
- *                           type: string
- *                         role:
- *                           type: string
- *                     accessToken:
- *                       type: string
- *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
- *                     refreshToken:
- *                       type: string
- *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  */
-router.post("/login", authController.login);
+router.post("/login", upload.none(), authController.login);
 
 
 /**
@@ -136,24 +88,8 @@ router.post("/login", authController.login);
  *     responses:
  *       200:
  *         description: New access token generated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: number
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     accessToken:
- *                       type: string
  */
-router.post("/refresh", authController.refresh);
+router.post("/refresh", upload.none(), authController.refresh);
 
 
 /**
@@ -185,6 +121,6 @@ router.post("/refresh", authController.refresh);
  *       200:
  *         description: Role updated successfully
  */
-router.patch("/change-role/:id", authController.changeRole);
+router.patch("/change-role/:id", upload.none(), authController.changeRole);
 
 module.exports = router;

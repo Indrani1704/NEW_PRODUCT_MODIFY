@@ -13,7 +13,17 @@ const generateRefreshToken = (payload) =>
 exports.register = async (req, res) => {
   try {
 
-    const { email, password, role } = req.body;
+    const email = req.body?.email;
+    const password = req.body?.password;
+    const role = req.body?.role;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        statusCode: 400,
+        success: false,
+        message: "Email and password are required"
+      });
+    }
 
     const existingUser = await User.findOne({ email });
 
@@ -21,8 +31,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({
         statusCode: 400,
         success: false,
-        message: "User already exists",
-        data: null
+        message: "User already exists"
       });
     }
 
@@ -65,7 +74,16 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
 
-    const { email, password } = req.body;
+    const email = req.body?.email;
+    const password = req.body?.password;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        statusCode: 400,
+        success: false,
+        message: "Email and password are required"
+      });
+    }
 
     const user = await User.findOne({ email });
 
@@ -73,8 +91,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({
         statusCode: 401,
         success: false,
-        message: "User not found",
-        data: null
+        message: "User not found"
       });
     }
 
@@ -84,12 +101,10 @@ exports.login = async (req, res) => {
       return res.status(401).json({
         statusCode: 401,
         success: false,
-        message: "Invalid password",
-        data: null
+        message: "Invalid password"
       });
     }
 
-    // Generate tokens
     const accessToken = generateAccessToken({
       id: user._id,
       role: user.role
@@ -99,7 +114,6 @@ exports.login = async (req, res) => {
       id: user._id
     });
 
-    // Save refresh token
     user.refreshToken = refreshToken;
     await user.save();
 
@@ -136,14 +150,13 @@ exports.login = async (req, res) => {
 exports.refresh = async (req, res) => {
   try {
 
-    const { refreshToken } = req.body;
+    const refreshToken = req.body?.refreshToken;
 
     if (!refreshToken) {
       return res.status(400).json({
         statusCode: 400,
         success: false,
-        message: "Refresh token required",
-        data: null
+        message: "Refresh token required"
       });
     }
 
@@ -153,41 +166,35 @@ exports.refresh = async (req, res) => {
       return res.status(403).json({
         statusCode: 403,
         success: false,
-        message: "Invalid refresh token",
-        data: null
+        message: "Invalid refresh token"
       });
     }
 
-    jwt.verify(
-      refreshToken,
-      process.env.JWT_REFRESH_SECRET,
-      (err) => {
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err) => {
 
-        if (err) {
-          return res.status(403).json({
-            statusCode: 403,
-            success: false,
-            message: "Refresh token expired",
-            data: null
-          });
-        }
-
-        const accessToken = generateAccessToken({
-          id: user._id,
-          role: user.role
+      if (err) {
+        return res.status(403).json({
+          statusCode: 403,
+          success: false,
+          message: "Refresh token expired"
         });
-
-        res.status(200).json({
-          statusCode: 200,
-          success: true,
-          message: "New access token generated",
-          data: {
-            accessToken
-          }
-        });
-
       }
-    );
+
+      const accessToken = generateAccessToken({
+        id: user._id,
+        role: user.role
+      });
+
+      res.status(200).json({
+        statusCode: 200,
+        success: true,
+        message: "New access token generated",
+        data: {
+          accessToken
+        }
+      });
+
+    });
 
   } catch (error) {
 
@@ -205,10 +212,17 @@ exports.refresh = async (req, res) => {
 
 // CHANGE ROLE
 exports.changeRole = async (req, res) => {
-
   try {
 
-    const { role } = req.body;
+    const role = req.body?.role;
+
+    if (!role) {
+      return res.status(400).json({
+        statusCode: 400,
+        success: false,
+        message: "Role is required"
+      });
+    }
 
     const user = await User.findByIdAndUpdate(
       req.params.id,
@@ -220,9 +234,7 @@ exports.changeRole = async (req, res) => {
       statusCode: 200,
       success: true,
       message: "Role updated successfully",
-      data: {
-        user
-      }
+      data: { user }
     });
 
   } catch (error) {
@@ -235,5 +247,4 @@ exports.changeRole = async (req, res) => {
     });
 
   }
-
 };

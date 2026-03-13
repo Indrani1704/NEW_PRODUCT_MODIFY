@@ -11,7 +11,7 @@ module.exports = (app) => {
     swaggerUi.serve,
     swaggerUi.setup(specs, {
      customCss: `
-/* Background */
+/* BACKGROUND */
 body {
   background-color: #0d1117 !important;
 }
@@ -22,42 +22,50 @@ body {
   font-family: Inter, system-ui, sans-serif;
 }
 
-/* Top bar */
+/* TOP BAR */
 .swagger-ui .topbar {
   background-color: #010409 !important;
   border-bottom: 1px solid #30363d !important;
 }
 
-/* Section panels */
+/* SECTION BLOCK */
 .swagger-ui .opblock {
   background-color: #161b22 !important;
-  border: 1px solid #30363d !important;
+  border: 1px solid #30363d !important;   /* GRAY BORDER */
   box-shadow: none !important;
 }
 
-/* Titles */
+/* ENDPOINT TEXT */
+.swagger-ui .opblock-summary-path,
 .swagger-ui .opblock-summary-description,
+.swagger-ui .opblock-summary-method,
 .swagger-ui .info hgroup.main h2 {
-  color: #ffffff !important;
+  color: #ffffff !important;   /* WHITE TEXT */
 }
 
-/* Inputs */
+/* INPUTS */
 .swagger-ui input,
 .swagger-ui textarea,
 .swagger-ui select {
   background-color: #0d1117 !important;
   color: #ffffff !important;
-  border: 1px solid #e2e9f0 !important;
+  border: 1px solid #30363d !important;
 }
 
-/* Execute button */
+/* EXECUTE BUTTON */
 .swagger-ui .btn.execute {
   background-color: #238636 !important;
   border-color: #238636 !important;
+  color: white !important;
 }
 
-/* HTTP METHOD COLORS */
+/* AUTHORIZE BUTTON */
+.swagger-ui .btn.authorize {
+  background-color: #1f6feb !important;
+  color: white !important;
+}
 
+/* HTTP METHOD LEFT BORDER COLORS */
 .swagger-ui .opblock.opblock-get {
   border-left: 4px solid #1f6feb !important;
 }
@@ -78,21 +86,17 @@ body {
   border-left: 4px solid #a371f7 !important;
 }
 
-/* Code block */
-.swagger-ui pre {
-  background-color: #010409 !important;
-  color: #f8f8f8 !important;
-}
-
-/* Response box */
+/* RESPONSE PANEL */
 .swagger-ui .responses-inner {
   background-color: #0d1117 !important;
+  border: 1px solid #30363d !important;
 }
 
-/* Authorize button */
-.swagger-ui .btn.authorize {
-  background-color: #21262d !important;
-  color: white !important;
+/* CODE BLOCK */
+.swagger-ui pre {
+  background-color: #010409 !important;
+  color: #ffffff !important;
+  border: 1px solid #646a72 !important;
 }
 `,
 

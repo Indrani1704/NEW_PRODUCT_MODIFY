@@ -28,63 +28,46 @@ const controller = require("../controllers/product.controller");
  *           type: string
  *         category:
  *           type: string
+ *         status:
+ *           type: string
+ *           example: publish
  *         images:
  *           type: array
  *           items:
  *             type: string
- *         published:
- *           type: boolean
  */
+
 
 /**
  * @swagger
  * /api/products:
  *   get:
- *     summary: Get products with search and pagination
+ *     summary: Get products (User → publish only)
  *     tags: [Products]
- *     parameters:
- *       - in: query
- *         name: name
- *         schema:
- *           type: string
- *       - in: query
- *         name: category
- *         schema:
- *           type: string
- *       - in: query
- *         name: startDate
- *         schema:
- *           type: string
- *       - in: query
- *         name: endDate
- *         schema:
- *           type: string
- *       - in: query
- *         name: page
- *         schema:
- *           type: number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: number
+ 
+
  *     responses:
  *       200:
  *         description: Products fetched successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 total:
- *                   type: number
- *                 products:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Product'
  */
-router.get("/", controller.getProducts);
+router.get("/",  controller.getProducts);
+
+
+
+/**
+ * @swagger
+ * /api/products/admin/products:
+ *   get:
+ *     summary: Admin view all products (publish + unpublish)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Admin products fetched
+ */
+router.get("/admin/products", auth, admin, controller.getAdminProducts);
+
 
 
 /**
@@ -113,6 +96,9 @@ router.get("/", controller.getProducts);
  *                 type: string
  *               category:
  *                 type: string
+ *               status:
+ *                 type: string
+ *                 example: publish
  *               images:
  *                 type: array
  *                 items:
@@ -120,13 +106,10 @@ router.get("/", controller.getProducts);
  *                   format: binary
  *     responses:
  *       200:
- *         description: Product created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Product'
+ *         description: Product created
  */
 router.post("/", auth, admin, upload.array("images", 5), controller.createProduct);
+
 
 
 /**
@@ -157,6 +140,8 @@ router.post("/", auth, admin, upload.array("images", 5), controller.createProduc
  *                 type: string
  *               category:
  *                 type: string
+ *               status:
+ *                 type: string
  *               images:
  *                 type: array
  *                 items:
@@ -164,9 +149,10 @@ router.post("/", auth, admin, upload.array("images", 5), controller.createProduc
  *                   format: binary
  *     responses:
  *       200:
- *         description: Product updated successfully
+ *         description: Product updated
  */
 router.put("/:id", auth, admin, upload.array("images", 5), controller.updateProduct);
+
 
 
 /**
@@ -185,16 +171,17 @@ router.put("/:id", auth, admin, upload.array("images", 5), controller.updateProd
  *           type: string
  *     responses:
  *       200:
- *         description: Product deleted successfully
+ *         description: Product deleted
  */
 router.delete("/:id", auth, admin, controller.deleteProduct);
+
 
 
 /**
  * @swagger
  * /api/products/publish/{id}:
  *   patch:
- *     summary: Publish or Unpublish product
+ *     summary: Publish or Unpublish product (Admin)
  *     tags: [Products]
  *     security:
  *       - bearerAuth: []
@@ -211,11 +198,12 @@ router.delete("/:id", auth, admin, controller.deleteProduct);
 router.patch("/publish/:id", auth, admin, controller.togglePublish);
 
 
+
 /**
  * @swagger
  * /api/products/review/{id}:
  *   post:
- *     summary: Add review/comment
+ *     summary: Add product review
  *     tags: [Products]
  *     security:
  *       - bearerAuth: []
@@ -237,23 +225,23 @@ router.patch("/publish/:id", auth, admin, controller.togglePublish);
  *             properties:
  *               comment:
  *                 type: string
- *                 example: Very good product
+ *                 example: Great product
  *               rating:
  *                 type: number
  *                 example: 5
  *     responses:
  *       200:
- *         description: Review added successfully
- *         
+ *         description: Review added
  */
 router.post("/review/:id", auth, upload.none(), controller.addReview);
+
 
 
 /**
  * @swagger
  * /api/products/slug/{slug}:
  *   get:
- *     summary: Get product details by slug
+ *     summary: Get product by slug
  *     tags: [Products]
  *     parameters:
  *       - in: path
@@ -264,10 +252,6 @@ router.post("/review/:id", auth, upload.none(), controller.addReview);
  *     responses:
  *       200:
  *         description: Product fetched successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Product'
  */
 router.get("/slug/:slug", controller.getProductBySlug);
 

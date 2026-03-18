@@ -4,10 +4,11 @@ const express = require("express");
 const cors = require("cors");
 
 const connectDB = require("./app/config/db");
-const swagger = require("./app/config/swagger");
+const swagger = require("./app/config/swagger.js");
 
 const authRoutes = require("./app/routes/auth.routes");
 const productRoutes = require("./app/routes/product.routes");
+const categoryRoutes = require("./app/routes/category.routes");
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/uploads", express.static("uploads"));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
 
 
 // Swagger Docs

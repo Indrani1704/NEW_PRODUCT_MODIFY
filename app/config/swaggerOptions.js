@@ -39,6 +39,7 @@ module.exports = {
     "app.js",
     "./app/routes/auth.routes.js",
     "./app/routes/product.routes.js",
+    "./app/routes/category.routes.js",
   ],
 };
 

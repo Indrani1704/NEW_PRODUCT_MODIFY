@@ -1,20 +1,20 @@
 module.exports = {
   definition: {
     openapi: "3.0.0",
+
     info: {
       title: "Product API",
       version: "1.0.0",
-      description: "Product API documentation",
+      description: "Product & Category API documentation",
       contact: {
-        name: "indrani",
+        name: "Indrani",
       },
     },
 
-    servers: [
-      {
-        url: "/",
-        description: "Current server (auto-detect)",
-      },
+    tags: [
+      { name: "Products", description: "Product APIs" },
+      { name: "Categories", description: "Category APIs" },
+      { name: "Auth", description: "Authentication APIs" },
     ],
 
     components: {
@@ -23,7 +23,33 @@ module.exports = {
           type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
-          description: "Bearer token needed to access this API",
+        },
+      },
+
+      // ✅ FIXED SCHEMAS (NO MORE ERROR)
+      schemas: {
+        Category: {
+          type: "object",
+          properties: {
+            _id: { type: "string" },
+            name: { type: "string" },
+            slug: { type: "string" },
+          },
+        },
+
+        CategoryPagination: {
+          type: "object",
+          properties: {
+            currentPage: { type: "integer", example: 1 },
+            totalPages: { type: "integer", example: 5 },
+            totalCategories: { type: "integer", example: 20 },
+            categories: {
+              type: "array",
+              items: {
+                $ref: "#/components/schemas/Category",
+              },
+            },
+          },
         },
       },
     },
@@ -35,11 +61,5 @@ module.exports = {
     ],
   },
 
-  apis: [
-    "app.js",
-    "./app/routes/auth.routes.js",
-    "./app/routes/product.routes.js",
-    "./app/routes/category.routes.js",
-  ],
+  apis: ["./app/routes/**/*.js"],
 };
-

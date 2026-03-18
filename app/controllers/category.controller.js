@@ -1,34 +1,39 @@
 const Category = require("../models/category.model");
+const Product = require("../models/product.model"); // ✅ for safe delete
 const slugify = require("slugify");
 
 
-// CREATE
 exports.createCategory = async (req, res) => {
   try {
-    const slug = slugify(req.body.name, { lower: true });
+    // ✅ safe destructuring
+    const name = req.body?.name;
 
-    const exists = await Category.findOne({ slug });
-    if (exists) {
-      return res.status(400).json({ message: "Category exists" });
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
     }
 
-    const category = await Category.create({
-      name: req.body.name,
-      slug,
+    const slug = slugify(name, { lower: true, strict: true });
+
+    const exists = await Category.findOne({
+      $or: [{ name }, { slug }],
     });
 
-    console.log(" Category created");
+    if (exists) {
+      return res.status(400).json({ message: "Category already exists" });
+    }
+
+    const category = await Category.create({ name, slug });
 
     res.status(201).json(category);
 
   } catch (error) {
-    console.error(" Category error:", error.message);
+    console.error("❌ Category error:", error.message);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 
-// GET (PAGINATION)
+// ✅ GET CATEGORIES (PAGINATION)
 exports.getCategories = async (req, res) => {
   try {
     let page = parseInt(req.query.page) || 1;
@@ -46,7 +51,7 @@ exports.getCategories = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    console.log(` Categories → Page ${page}`);
+    console.log(`📦 Categories → Page ${page}`);
 
     res.json({
       currentPage: page,
@@ -56,45 +61,80 @@ exports.getCategories = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(" Fetch categories error:", error.message);
+    console.error("❌ Fetch categories error:", error.message);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 
-// UPDATE
+// ✅ UPDATE CATEGORY
 exports.updateCategory = async (req, res) => {
   try {
-    const slug = slugify(req.body.name, { lower: true });
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    const slug = slugify(name, { lower: true, strict: true });
+
+    // ✅ prevent duplicate on update
+    const exists = await Category.findOne({
+      _id: { $ne: req.params.id },
+      $or: [{ name }, { slug }],
+    });
+
+    if (exists) {
+      return res.status(400).json({ message: "Category already exists" });
+    }
 
     const category = await Category.findByIdAndUpdate(
       req.params.id,
-      { name: req.body.name, slug },
+      { name, slug },
       { new: true }
     );
 
     if (!category) {
-      return res.status(404).json({ message: "Not found" });
+      return res.status(404).json({ message: "Category not found" });
     }
+
+    console.log("✅ Category updated");
 
     res.json(category);
 
   } catch (error) {
-    console.error(" Update category:", error.message);
+    console.error("❌ Update category:", error.message);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 
-// DELETE
+// ✅ DELETE CATEGORY (SAFE DELETE)
 exports.deleteCategory = async (req, res) => {
   try {
-    await Category.findByIdAndDelete(req.params.id);
+    // ✅ Check if category is used in products
+    const productsUsing = await Product.findOne({
+      category: req.params.id,
+    });
 
-    res.json({ message: "Deleted" });
+    if (productsUsing) {
+      return res.status(400).json({
+        message: "Cannot delete category (used in products)",
+      });
+    }
+
+    const category = await Category.findByIdAndDelete(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    console.log("✅ Category deleted");
+
+    res.json({ message: "Category deleted" });
 
   } catch (error) {
-    console.error(" Delete category:", error.message);
+    console.error("❌ Delete category:", error.message);
     res.status(500).json({ message: "Server error" });
   }
 };

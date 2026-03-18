@@ -1,3 +1,5 @@
+// models/product.model.js
+
 const mongoose = require("mongoose");
 
 const reviewSchema = new mongoose.Schema(
@@ -11,11 +13,20 @@ const reviewSchema = new mongoose.Schema(
 
 const productSchema = new mongoose.Schema(
   {
-    name: String,
+    name: {
+      type: String,
+      required: true,
+    },
     slug: String,
     description: String,
     price: Number,
-    category: String,
+
+    // ✅ FIXED (REFERENCE)
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
 
     status: {
       type: String,

@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
+const multer = require("multer"); // ✅ ADD THIS
+const upload = multer(); // ✅ for form-data (text only)
+
 const {
   createCategory,
   getCategories,
@@ -48,7 +51,7 @@ router.get("/", getCategories);
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         multipart/form-data:   # ✅ KEEP THIS
  *           schema:
  *             type: object
  *             required:
@@ -65,7 +68,7 @@ router.get("/", getCategories);
  *       401:
  *         description: Unauthorized
  */
-router.post("/", auth, admin, createCategory);
+router.post("/", auth, admin, upload.none(), createCategory); // ✅ FIXED
 
 
 /**
@@ -86,7 +89,7 @@ router.post("/", auth, admin, createCategory);
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         multipart/form-data:   # ✅ KEEP THIS
  *           schema:
  *             type: object
  *             properties:
@@ -99,7 +102,7 @@ router.post("/", auth, admin, createCategory);
  *       404:
  *         description: Category not found
  */
-router.put("/:id", auth, admin, updateCategory);
+router.put("/:id", auth, admin, upload.none(), updateCategory); // ✅ FIXED
 
 
 /**

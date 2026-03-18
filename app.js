@@ -12,44 +12,48 @@ const categoryRoutes = require("./app/routes/category.routes");
 
 const app = express();
 
+// ✅ VERY IMPORTANT (for deployment behind proxy)
+app.set("trust proxy", 1);
+
 // Connect database
 connectDB();
 
-
-// Middleware
+// ✅ Middleware
 app.use(cors());
 
-app.use(express.json()); // parse application/json
+// ✅ Body parsers (CORRECT)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use(express.urlencoded({ extended: true })); // parse urlencoded
-
-// Static files
+// ✅ Static files
 app.use("/uploads", express.static("uploads"));
 
-
-// Routes
+// ✅ Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 
+// ✅ Test route
+app.get("/check", (req, res) => {
+  res.send("Server working");
+});
 
-// Swagger Docs
+// ✅ Swagger
 swagger(app);
 
-
-// Health Check Route (optional but useful)
+// ✅ Root route (dynamic URL)
 app.get("/", (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+
   res.json({
     status: "API Running",
-    docs: `http://localhost:${process.env.PORT || 5000}/api-docs`
+    docs: `${baseUrl}/api-docs`, // ✅ dynamic
   });
 });
 
-
-// Start Server
+// ✅ Start Server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(` Server running on port ${PORT}`);
-  console.log(` Swagger Docs: http://localhost:${PORT}/api-docs`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

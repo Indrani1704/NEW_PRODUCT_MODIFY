@@ -1,18 +1,35 @@
-const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const swaggerJsDoc = require("swagger-jsdoc");
 
-const swaggerOptions = require("./swaggerOptions");
+const options = require("./swaggerOptions");
 
-const specs = swaggerJsDoc(swaggerOptions);
+const specs = swaggerJsDoc(options);
 
 module.exports = (app) => {
   console.log("🔥 Swagger mounted");
 
-  // ✅ Force redirect from /api-docs/ → /api-docs
-  app.get("/api-docs/", (req, res) => {
-    res.redirect("/api-docs");
-  });
+  // ✅ Dynamic server (auto localhost / live)
+  app.use(
+    "/api-docs",
+    (req, res, next) => {
+      specs.servers = [
+        {
+          url: `${req.protocol}://${req.get("host")}`,
+          description: "Dynamic server",
+        },
+      ];
+      next();
+    },
+    swaggerUi.serve,
+    swaggerUi.setup(specs, {
+      explorer: true,
 
-  // ✅ Serve Swagger UI
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+      // ✅ Hide top error box (clean UI)
+      customCss: `
+        .swagger-ui .errors-wrapper {
+          display: none !important;
+        }
+      `,
+    })
+  );
 };

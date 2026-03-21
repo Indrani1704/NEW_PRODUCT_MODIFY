@@ -19,25 +19,26 @@ const admin = require("../middlewares/admin.middleware");
  * @swagger
  * /api/categories:
  *   get:
- *     summary: Get categories (Paginated)
+ *     summary: Get categories (All OR Paginated)
  *     tags: [Categories]
  *     parameters:
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
- *           default: 1
  *         required: false
- *         description: Page number (5 per page)
+ *         description: If provided → pagination, else → all categories
  *     responses:
  *       200:
- *         description: Categories fetched successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/CategoryPagination'
+ *         description: Success
  */
 router.get("/", getCategories);
+
+
+
+
+
+
 
 
 /**

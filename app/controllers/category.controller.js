@@ -33,14 +33,22 @@ exports.createCategory = async (req, res) => {
 };
 
 
-// ✅ GET CATEGORIES (PAGINATION)
 exports.getCategories = async (req, res) => {
   try {
-    let page = parseInt(req.query.page) || 1;
+    console.log("QUERY:", req.query);
+
+    // ✅ STRICT CHECK
+    if (req.query.page === undefined) {
+      const categories = await Category.find().sort({ createdAt: -1 });
+
+      return res.json({
+        categories,
+      });
+    }
+
+    // ✅ PAGINATION ONLY IF page EXISTS
+    const page = parseInt(req.query.page) || 1;
     const limit = 5;
-
-    if (page < 1) page = 1;
-
     const skip = (page - 1) * limit;
 
     const total = await Category.countDocuments();
@@ -51,8 +59,6 @@ exports.getCategories = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    console.log(`📦 Categories → Page ${page}`);
-
     res.json({
       currentPage: page,
       totalPages,
@@ -61,11 +67,12 @@ exports.getCategories = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Fetch categories error:", error.message);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Category error:", error);
+    res.status(500).json({
+      message: "Server error",
+    });
   }
 };
-
 
 // ✅ UPDATE CATEGORY
 exports.updateCategory = async (req, res) => {
